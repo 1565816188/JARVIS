@@ -21,9 +21,5 @@ jobs:
           port: 22
           source: "web/*"
           target: "/opt/JARVIS/web"
-          strip_components: 2
-          script: |
-            cd /opt/JARVIS/web
-            pnpm install
-            pnpm run build
-            pnpm start
+          strip_components: 1
+
