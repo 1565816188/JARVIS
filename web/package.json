@@ -1,5 +1,5 @@
 {
-  "name": "web",
+  "name": "module",
   "private": true,
   "sideEffects": false,
   "type": "module",
