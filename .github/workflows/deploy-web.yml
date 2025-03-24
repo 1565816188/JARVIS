@@ -34,4 +34,4 @@ jobs:
             cd /opt/JARVIS/web
             pnpm install
             pnpm run build
-            pnpm run start &
+            pm2 restart web || pm2 start npm --name "web" -- start
