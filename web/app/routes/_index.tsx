@@ -34,7 +34,7 @@ export default function Index() {
 
   return (
     <div className="flex h-screen p-4">
-      <div className="flex w-[260px]">sidebarffffff</div>
+      <div className="flex w-[260px]">sidfd222222222arffffff</div>
 
       <div className="flex-1 flex flex-col items-center gap-2 p-4 bg-white rounded-lg">
         <div className="flex-1 flex flex-col gap-2 w-full">
