@@ -22,4 +22,8 @@ jobs:
           source: "web/*"
           target: "/opt/JARVIS/web"
           strip_components: 1
-
+          script: |
+            cd /opt/JARVIS/web
+            pnpm install
+            pnpm run build
+            pnpm run start
