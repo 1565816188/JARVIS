@@ -38,7 +38,7 @@ jobs:
         password: ${{ secrets.ALIYUN_PASSWORD }}
         port: 22
         source: "web/build/*"
-        target: "/JARVIS/web"
+        target: "/root/JARVIS/web"
         strip_components: 1
       
 
