@@ -12,30 +12,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Copy to Aliyun
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.ALIYUN_HOST }}
-          username: ${{ secrets.ALIYUN_USERNAME }}
-          password: ${{ secrets.ALIYUN_PASSWORD }}
-          port: 22
-          source: "web/*"
-          target: "/opt/JARVIS/web"
-          strip_components: 1
-
-      - name: Deploy to Aliyun
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.ALIYUN_HOST }}
-          username: ${{ secrets.ALIYUN_USERNAME }}
-          password: ${{ secrets.ALIYUN_PASSWORD }}
-          port: 22
-          script: |
-            cd /opt/JARVIS/web
-            pnpm install
-            pnpm run build
-            pm2 restart web || pm2 start npm --name "web" -- start
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -60,6 +36,6 @@ jobs:
           username: ${{ secrets.ALIYUN_USERNAME }}
           password: ${{ secrets.ALIYUN_PASSWORD }}
           port: 22
-          source: "ai/dist/*"
+          source: "ai/dist/main"
           target: "/opt/JARVIS/ai"
           strip_components: 1
