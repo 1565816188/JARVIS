@@ -52,7 +52,7 @@ export default function Index() {
           onSend={async (inputValue: string) => {
             const newChatMessages = insertUserChatMessage(inputValue);
 
-            const response = await ky.post("http://localhost:8001/chat", {
+            const response = await ky.post("http://localhost:8000/chat", {
               json: {
                 messages: newChatMessages,
               },

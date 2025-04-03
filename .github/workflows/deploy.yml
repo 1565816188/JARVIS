@@ -1,0 +1,64 @@
+name: Deploy
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # web
+      - name: Copy web
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.ALIYUN_HOST }}
+          username: ${{ secrets.ALIYUN_USERNAME }}
+          password: ${{ secrets.ALIYUN_PASSWORD }}
+          port: 22
+          source: "web/*"
+          target: "/opt/JARVIS/web"
+          strip_components: 1
+
+      - name: Deploy web
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.ALIYUN_HOST }}
+          username: ${{ secrets.ALIYUN_USERNAME }}
+          password: ${{ secrets.ALIYUN_PASSWORD }}
+          port: 22
+          script: |
+            cd /opt/JARVIS/web
+            pnpm install
+            pnpm run build
+            pm2 restart web || pm2 start npm --name "web" -- start
+
+      # ai
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: restart AI
+         uses: appleboy/ssh-action@master
+         with:
+           host: ${{ secrets.ALIYUN_HOST }} 
+           username: ${{ secrets.ALIYUN_USERNAME }}
+           password: ${{ secrets.ALIYUN_PASSWORD }}  
+           port: 22
+           script: |
+             if pgrep -f "/opt/JARVIS/ai/dist/main" > /dev/null; then
+               echo "正在停止旧进程..."
+               pkill -f "/opt/JARVIS/ai/dist/main"
+               sleep 2
+             fi
+ 
+             chmod +x /opt/JARVIS/ai/dist/main
+ 
+             nohup /opt/JARVIS/ai/dist/main > /dev/null 2>&1 &
+ 
+             echo "程序已启动，进程ID: $!"
