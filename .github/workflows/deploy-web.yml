@@ -26,7 +26,7 @@ jobs:
 
       - name: Build executable with PyInstaller
         run: |
-          pyinstaller -D ./main.py --add-binary "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\py_mini_racer;." --add-binary "C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Lib\site-packages\akshare;.\akshare"
+          pyinstaller -D ./main.py --add-binary "/usr/local/lib/python3.13/site-packages/py_mini_racer:." --add-binary "/usr/local/lib/python3.13/site-packages/akshare:./akshare"
         working-directory: ai
 
       - name: Copy executable to Aliyun
