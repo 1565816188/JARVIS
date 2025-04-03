@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v3
 
       # web
-      - name: Copy web
+      - name: web - copy to aliyun
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.ALIYUN_HOST }}
@@ -24,7 +24,7 @@ jobs:
           target: "/opt/JARVIS/web"
           strip_components: 1
 
-      - name: Deploy web
+      - name: web - build and restart
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.ALIYUN_HOST }}
@@ -38,12 +38,35 @@ jobs:
             pm2 restart web || pm2 start npm --name "web" -- start
 
       # ai
-      - name: Set up Python
+      - name: ai - set up python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.13.2"
 
-      - name: restart AI
+      - name: ai - install python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          pip install -r requirements.txt
+        working-directory: ai
+
+      - name: ai - build executable with PyInstaller
+        run: |
+          pyinstaller -F ./main.py --add-binary "/opt/hostedtoolcache/Python/3.13.2/x64/lib/python3.13/site-packages/py_mini_racer:." --add-binary "/opt/hostedtoolcache/Python/3.13.2/x64/lib/python3.13/site-packages/akshare:./akshare"
+        working-directory: ai
+
+      - name: ai - copy to aliyun
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.ALIYUN_HOST }}
+          username: ${{ secrets.ALIYUN_USERNAME }}
+          password: ${{ secrets.ALIYUN_PASSWORD }}
+          port: 22
+          source: "ai/*"
+          target: "/opt/JARVIS/ai"
+          strip_components: 1
+
+      - name: ai - restart
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.ALIYUN_HOST }} 
@@ -52,13 +75,11 @@ jobs:
           port: 22
           script: |
             if pgrep -f "/opt/JARVIS/ai/dist/main" > /dev/null; then
-              echo "正在停止旧进程..."
+              echo "killing old process..."
               killall "/opt/JARVIS/ai/dist/main"
               sleep 2
             fi
  
-            chmod +x /opt/JARVIS/ai/dist/main
- 
             nohup /opt/JARVIS/ai/dist/main > /dev/null 2>&1 &
  
-            echo "程序已启动，进程ID: $!"
+            echo "program started..."
