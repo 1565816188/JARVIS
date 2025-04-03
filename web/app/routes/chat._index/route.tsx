@@ -53,6 +53,7 @@ export default function ChatIndex() {
             const response = await ky.post("http://localhost:8000/chat", {
               json: {
                 messages: newChatMessages,
+                DASHSCOPE_API_KEY: "sk-5f213d9ad0db4d59a8258d02e076c4ba",
               },
             });
 
