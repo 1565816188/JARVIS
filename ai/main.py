@@ -117,17 +117,17 @@ async def create_chat(chat: ChatModel):
                 # 处理AI的思考过程（链式推理）
                 if hasattr(delta, 'reasoning_content') and delta.reasoning_content is not None:
                     reasoning_content += delta.reasoning_content
-                    yield generate_streaming_str({"content": delta.reasoning_content})
+                    yield generate_streaming_str({"content1": delta.reasoning_content})
                 
                 # 处理最终回复内容
                 else:
                     if not is_answering and delta.content is not None:  # 首次进入回复阶段时打印标题
                         is_answering = True
-                        yield generate_streaming_str({"content": "\n" + "="*20 + "回复内容" + "="*20 + "\n"})
+                        yield generate_streaming_str({"content1": "\n" + "="*20 + "回复内容" + "="*20 + "\n"})
                     
                     if delta.content is not None:
                         answer_content += delta.content
-                        yield generate_streaming_str({"content": delta.content})
+                        yield generate_streaming_str({"content1": delta.content})
                     
                     # 处理工具调用信息（支持并行工具调用）
                     if delta.tool_calls is not None:
