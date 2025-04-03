@@ -20,15 +20,15 @@ jobs:
           password: ${{ secrets.ALIYUN_PASSWORD }}  
           port: 22
           script: |
-            if pgrep -f "/opt/JARVIS/ai/dist/main" > /dev/null; then
+            if pgrep -f "/opt/JARVIS/ai/dist/main/main" > /dev/null; then
               echo "正在停止旧进程..."
-              killall "/opt/JARVIS/ai/dist/main"
+              killall "/opt/JARVIS/ai/dist/main/main"
               sleep 2
             fi
  
-            chmod +x /opt/JARVIS/ai/dist/main
+            chmod +x /opt/JARVIS/ai/dist/main/main
  
-            nohup /opt/JARVIS/ai/dist/main > /dev/null 2>&1 &
+            nohup /opt/JARVIS/ai/dist/main/main > /dev/null 2>&1 &
  
             echo "程序已启动，进程ID: $!"
       
