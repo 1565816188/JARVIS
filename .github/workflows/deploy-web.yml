@@ -12,30 +12,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.13.2"
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pyinstaller
-          pip install -r requirements.txt
-        working-directory: ai
-
-      - name: Build executable with PyInstaller
-        run: |
-          pyinstaller -D ./main.py --add-binary "/opt/hostedtoolcache/Python/3.13.2/x64/lib/python3.13/site-packages/py_mini_racer:." --add-binary "/opt/hostedtoolcache/Python/3.13.2/x64/lib/python3.13/site-packages/akshare:./akshare"
-        working-directory: ai
-
-      - name: Copy executable to Aliyun
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.ALIYUN_HOST }}
-          username: ${{ secrets.ALIYUN_USERNAME }}
-          password: ${{ secrets.ALIYUN_PASSWORD }}
-          port: 22
-          source: "ai/dist/main"
-          target: "/opt/JARVIS/ai"
-          strip_components: 2
+      - name: restart AI
+         uses: appleboy/ssh-action@master
+         with:
+           host: ${{ secrets.ALIYUN_HOST }} 
+           username: ${{ secrets.ALIYUN_USERNAME }}
+           password: ${{ secrets.ALIYUN_PASSWORD }}  
+           port: 22
+           script: |
+             if pgrep -f "/opt/JARVIS/ai/dist/main" > /dev/null; then
+               echo "正在停止旧进程..."
+               pkill -f "/opt/JARVIS/ai/dist/main"
+               sleep 2
+             fi
+ 
+             chmod +x /opt/JARVIS/ai/dist/main
+ 
+             nohup /opt/JARVIS/ai/dist/main > /dev/null 2>&1 &
+ 
+             echo "程序已启动，进程ID: $!"
+      
