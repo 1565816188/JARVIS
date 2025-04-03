@@ -1,4 +1,4 @@
-akshare==1.16.50
+akshare==1.16.68
 fastapi==0.115.11
 openai==1.66.5
 pandas==2.2.3
