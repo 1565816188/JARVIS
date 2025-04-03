@@ -96,3 +96,15 @@ jobs:
           port: 22
           script: |
             nohup /opt/JARVIS/ai/dist/main > /dev/null 2>&1 &
+            echo "程序已启动，进程ID: $!"
+
+             # 等待几秒确保程序有时间启动
+            sleep 3
+            
+            # 检查程序是否在运行
+            if pgrep -f "/opt/JARVIS/ai/dist/main" > /dev/null; then
+              echo "程序正在运行"
+            else
+              echo "程序未能成功启动"
+              exit 1
+            fi
