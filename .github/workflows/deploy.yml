@@ -12,74 +12,30 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      # web
-      - name: web - copy to aliyun
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.ALIYUN_HOST }}
-          username: ${{ secrets.ALIYUN_USERNAME }}
-          password: ${{ secrets.ALIYUN_PASSWORD }}
-          port: 22
-          source: "web/*"
-          target: "/opt/JARVIS/web"
-          strip_components: 1
-
-      - name: web - build and restart
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.ALIYUN_HOST }}
-          username: ${{ secrets.ALIYUN_USERNAME }}
-          password: ${{ secrets.ALIYUN_PASSWORD }}
-          port: 22
-          script: |
-            cd /opt/JARVIS/web
-            pnpm install
-            pnpm run build
-            pm2 restart web || pm2 start npm --name "web" -- start
-
-      # ai
-      - name: ai - set up python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.13.2"
 
-      - name: ai - install python dependencies
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install pyinstaller
           pip install -r requirements.txt
         working-directory: ai
 
-      - name: ai - build executable with PyInstaller
+      - name: Build executable with PyInstaller
         run: |
           pyinstaller -F ./main.py --add-binary "/opt/hostedtoolcache/Python/3.13.2/x64/lib/python3.13/site-packages/py_mini_racer:." --add-binary "/opt/hostedtoolcache/Python/3.13.2/x64/lib/python3.13/site-packages/akshare:./akshare"
         working-directory: ai
 
-      - name: ai - copy to aliyun
+      - name: Copy executable to Aliyun
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.ALIYUN_HOST }}
           username: ${{ secrets.ALIYUN_USERNAME }}
           password: ${{ secrets.ALIYUN_PASSWORD }}
           port: 22
-          source: "ai/*"
+          source: "ai/dist/main"
           target: "/opt/JARVIS/ai"
-          strip_components: 1
-
-      - name: ai - restart
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.ALIYUN_HOST }} 
-          username: ${{ secrets.ALIYUN_USERNAME }}
-          password: ${{ secrets.ALIYUN_PASSWORD }}  
-          port: 22
-          script: |
-            if pgrep -f "/opt/JARVIS/ai/dist/main" > /dev/null; then
-              echo "killing old process..."
-              killall "/opt/JARVIS/ai/dist/main"
-              sleep 2
-            fi
- 
-            nohup /opt/JARVIS/ai/dist/main > /dev/null 2>&1 &
- 
-            echo "program started..."
+          strip_components: 2
