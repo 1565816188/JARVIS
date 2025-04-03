@@ -38,4 +38,4 @@ jobs:
           port: 22
           source: "ai/dist/main"
           target: "/opt/JARVIS/ai"
-          strip_components: 1
+          strip_components: 2
