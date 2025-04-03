@@ -110,7 +110,7 @@ async def create_chat(chat: ChatModel):
                 # 处理用量统计信息
                 usage_info = "\n" + "="*20 + "Usage" + "="*20 + "\n"
                 usage_info += str(chunk.usage) + "\n"
-                yield generate_streaming_str({"content": usage_info})
+                yield generate_streaming_str({"content1": usage_info})
             else:
                 delta = chunk.choices[0].delta
                 
@@ -123,7 +123,7 @@ async def create_chat(chat: ChatModel):
                 else:
                     if not is_answering and delta.content is not None:  # 首次进入回复阶段时打印标题
                         is_answering = True
-                        yield generate_streaming_str({"content1": "\n" + "="*20 + "回复内容" + "="*20 + "\n"})
+                        yield generate_streaming_str({"content1": "\n" + "="*20 + "回复1内容" + "="*20 + "\n"})
                     
                     if delta.content is not None:
                         answer_content += delta.content
