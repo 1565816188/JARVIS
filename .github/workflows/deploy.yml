@@ -55,6 +55,20 @@ jobs:
           pyinstaller -F ./main.py --add-binary "/opt/hostedtoolcache/Python/3.13.2/x64/lib/python3.13/site-packages/py_mini_racer:." --add-binary "/opt/hostedtoolcache/Python/3.13.2/x64/lib/python3.13/site-packages/akshare:./akshare"
         working-directory: ai
 
+      - name: ai - kill old process
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.ALIYUN_HOST }} 
+          username: ${{ secrets.ALIYUN_USERNAME }}
+          password: ${{ secrets.ALIYUN_PASSWORD }}  
+          port: 22
+          script: |
+            if pgrep -f "/opt/JARVIS/ai/dist/main" > /dev/null; then
+              echo "killing old process..."
+              killall "/opt/JARVIS/ai/dist/main"
+              sleep 2
+            fi
+
       - name: ai - copy to aliyun
         uses: appleboy/scp-action@master
         with:
@@ -74,12 +88,4 @@ jobs:
           password: ${{ secrets.ALIYUN_PASSWORD }}  
           port: 22
           script: |
-            if pgrep -f "/opt/JARVIS/ai/dist/main" > /dev/null; then
-              echo "killing old process..."
-              killall "/opt/JARVIS/ai/dist/main"
-              sleep 2
-            fi
- 
             nohup /opt/JARVIS/ai/dist/main > /dev/null 2>&1 &
- 
-            echo "program started..."
