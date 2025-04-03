@@ -70,6 +70,11 @@ jobs:
             fi
 
             rm -rf /opt/JARVIS/ai
+            if [ -d "/opt/JARVIS/ai" ]; then
+              echo "target directory exists"
+            else
+              echo "target directory does not exist"
+            fi
 
       - name: ai - copy to aliyun
         uses: appleboy/scp-action@master
