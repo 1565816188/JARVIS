@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-last
 
     steps:
       - name: Checkout
@@ -36,75 +36,3 @@ jobs:
             pnpm install
             pnpm run build
             pm2 restart web || pm2 start npm --name "web" -- start
-
-      # ai
-      - name: ai - set up python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.13.2"
-
-      - name: ai - install python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pyinstaller
-          pip install -r requirements.txt
-        working-directory: ai
-
-      - name: ai - build executable with PyInstaller
-        run: |
-          pyinstaller -F ./main.py --add-binary "/opt/hostedtoolcache/Python/3.13.2/x64/lib/python3.13/site-packages/py_mini_racer:." --add-binary "/opt/hostedtoolcache/Python/3.13.2/x64/lib/python3.13/site-packages/akshare:./akshare"
-        working-directory: ai
-
-      - name: ai - kill old process and clean target directory
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.ALIYUN_HOST }} 
-          username: ${{ secrets.ALIYUN_USERNAME }}
-          password: ${{ secrets.ALIYUN_PASSWORD }}  
-          port: 22
-          script: |
-            if pgrep -f "/opt/JARVIS/ai/dist/main" > /dev/null; then
-              echo "killing old process..."
-              killall "/opt/JARVIS/ai/dist/main"
-              sleep 2
-            fi
-
-            rm -rf /opt/JARVIS/ai
-            if [ -d "/opt/JARVIS/ai" ]; then
-              echo "target directory exists"
-            else
-              echo "target directory does not exist"
-            fi
-
-      - name: ai - copy to aliyun
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.ALIYUN_HOST }}
-          username: ${{ secrets.ALIYUN_USERNAME }}
-          password: ${{ secrets.ALIYUN_PASSWORD }}
-          port: 22
-          source: "ai/*"
-          target: "/opt/JARVIS/ai"
-          strip_components: 1
-
-      - name: ai - restart
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.ALIYUN_HOST }} 
-          username: ${{ secrets.ALIYUN_USERNAME }}
-          password: ${{ secrets.ALIYUN_PASSWORD }}  
-          port: 22
-          script: |
-            nohup /opt/JARVIS/ai/dist/main > /dev/null 2>&1 &
-            echo "程序已启动，进程ID: $!"
-
-             # 等待几秒确保程序有时间启动
-            sleep 3
-            
-            # 检查程序是否在运行
-            if pgrep -f "/opt/JARVIS/ai/dist/main" > /dev/null; then
-              echo "程序正在运行"
-            else
-              echo "程序未能成功启动"
-              exit 1
-            fi
